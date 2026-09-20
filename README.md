@@ -31,9 +31,9 @@ Uses Groq's free tier (`openai/gpt-oss-120b`) for generation.
 
 flowchart
 ```
-     U[User question] --> G1{Sensitive data?\ncard number, CVV, password}
+    U[User question] --> G1{Sensitive data?\ncard number, CVV, password}
     G1 -->|yes| E1[Escalate: sensitive_data\nnever touch retrieval/LLM]
-    G1 -->|no| G2{Needs account lookup?\n"my order #...", "my subscription"}
+    G1 -->|no| G2{Needs account lookup? e.g. order number or subscription status}
     G2 -->|yes| E2[Escalate: account_lookup]
     G2 -->|no| R[Retrieve top-4 chunks\nTF-IDF cosine similarity\nover 40 chunks]
 
