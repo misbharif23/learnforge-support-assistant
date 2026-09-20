@@ -33,17 +33,16 @@ Uses Groq's free tier (`openai/gpt-oss-120b`) for generation.
 ## 1. Architecture
 
 User question
-  -> Sensitive data check (card/CVV/password) -> if yes: escalate (sensitive_data)
-  -> Account lookup check ("my order #...") -> if yes: escalate (account_lookup)
-  -> Retrieve top-4 chunks (TF-IDF cosine similarity, 40 chunks)
-  -> Confidence check (top score vs threshold) -> if low: escalate (low_confidence), LLM never called
-  -> Build prompt (system rules + retrieved chunks + last 3 turns)
-  -> Groq LLM (openai/gpt-oss-120b) generates answer
-  -> Grounding check (citations match retrieved chunk ids?) -> if no: escalate (ungrounded)
-  -> Return cited answer
+- Sensitive data check (card/CVV/password) -> if yes: escalate (sensitive_data)
+- Account lookup check (e.g. "my order number") -> if yes: escalate (account_lookup)
+- Retrieve top-4 chunks (TF-IDF cosine similarity, 40 chunks)
+- Confidence check (top score vs threshold) -> if low: escalate (low_confidence), LLM never called
+- Build prompt (system rules + retrieved chunks + last 3 turns)
+- Groq LLM (openai/gpt-oss-120b) generates answer
+- Grounding check (citations match retrieved chunk ids?) -> if no: escalate (ungrounded)
+- Return cited answer
 
 All escalation paths route to a human agent queue, tagged with the specific reason.
-```
 
 **Ingestion (`src/ingest.py`)** — parses the three markdown source files into
 a flat list of chunks: one FAQ entry, one policy article, or one ticket
