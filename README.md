@@ -49,7 +49,8 @@ flowchart
     E1 & E2 & E3 & E4 --> H[Human agent queue,\ntagged with escalation reason]
 ```
 
-**Ingestion (`src/ingest.py`)** — parses the three markdown source files into
+**Ingestion (`src/ingest.py`)**
+Parses the three markdown source files into
 a flat list of chunks: one FAQ entry, one policy article, or one ticket
 transcript per chunk. No sub-splitting — each of these is already small
 (150-400 words) and single-topic, so splitting further risks separating an
