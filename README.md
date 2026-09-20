@@ -1,4 +1,3 @@
-# learnforge-support-assistant
 # LearnForge Support Assistant — RAG Prototype
 
 A retrieval-augmented customer-support assistant for LearnForge (an ed-tech
