@@ -30,7 +30,7 @@ Uses Groq's free tier (`openai/gpt-oss-120b`) for generation.
 ## 1. Architecture
 
 flowchart
-
+```
      U[User question] --> G1{Sensitive data?\ncard number, CVV, password}
     G1 -->|yes| E1[Escalate: sensitive_data\nnever touch retrieval/LLM]
     G1 -->|no| G2{Needs account lookup?\n"my order #...", "my subscription"}
