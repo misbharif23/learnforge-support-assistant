@@ -30,23 +30,19 @@ Uses Groq's free tier (`openai/gpt-oss-120b`) for generation.
 ## 1. Architecture
 
 ```mermaid
-flowchart TD
-    U[User question] --> G1{Sensitive data?\ncard number, CVV, password}
-    G1 -->|yes| E1[Escalate: sensitive_data\nnever touch retrieval/LLM]
-    G1 -->|no| G2{Needs account lookup?\n"my order #...", "my subscription"}
-    G2 -->|yes| E2[Escalate: account_lookup]
-    G2 -->|no| R[Retrieve top-4 chunks\nTF-IDF cosine similarity\nover 40 chunks]
+## 1. Architecture
 
-    R --> C{Top score above\nconfidence threshold?}
-    C -->|no| E3[Escalate: low_confidence\nLLM is never called]
-    C -->|yes| P[Build prompt:\nsystem rules + retrieved chunks\n+ last 3 conversation turns]
+User question
+  -> Sensitive data check (card/CVV/password) -> if yes: escalate (sensitive_data)
+  -> Account lookup check ("my order #...") -> if yes: escalate (account_lookup)
+  -> Retrieve top-4 chunks (TF-IDF cosine similarity, 40 chunks)
+  -> Confidence check (top score vs threshold) -> if low: escalate (low_confidence), LLM never called
+  -> Build prompt (system rules + retrieved chunks + last 3 turns)
+  -> Groq LLM (openai/gpt-oss-120b) generates answer
+  -> Grounding check (citations match retrieved chunk ids?) -> if no: escalate (ungrounded)
+  -> Return cited answer
 
-    P --> LLM[Groq LLM\nopenai/gpt-oss-120b]
-    LLM --> GC{Citations in answer\nmatch retrieved chunk ids?}
-    GC -->|no| E4[Escalate: ungrounded]
-    GC -->|yes| ANS[Return cited answer]
-
-    E1 & E2 & E3 & E4 --> H[Human agent queue,\ntagged with escalation reason]
+All escalation paths route to a human agent queue, tagged with the specific reason.
 ```
 
 **Ingestion (`src/ingest.py`)** — parses the three markdown source files into
