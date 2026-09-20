@@ -29,9 +29,6 @@ Uses Groq's free tier (`openai/gpt-oss-120b`) for generation.
 
 ## 1. Architecture
 
-```mermaid
-## 1. Architecture
-
 User question
 - Sensitive data check (card/CVV/password) -> if yes: escalate (sensitive_data)
 - Account lookup check (e.g. "my order number") -> if yes: escalate (account_lookup)
