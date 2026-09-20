@@ -29,17 +29,33 @@ Uses Groq's free tier (`openai/gpt-oss-120b`) for generation.
 
 ## 1. Architecture
 
-User question
-- Sensitive data check (card/CVV/password) -> if yes: escalate (sensitive_data)
-- Account lookup check (e.g. "my order number") -> if yes: escalate (account_lookup)
-- Retrieve top-4 chunks (TF-IDF cosine similarity, 40 chunks)
-- Confidence check (top score vs threshold) -> if low: escalate (low_confidence), LLM never called
-- Build prompt (system rules + retrieved chunks + last 3 turns)
-- Groq LLM (openai/gpt-oss-120b) generates answer
-- Grounding check (citations match retrieved chunk ids?) -> if no: escalate (ungrounded)
-- Return cited answer
+```mermaid
+flowchart TD
+    A[User question] --> B{Sensitive data?<br/>card / CVV / password}
+    B -- Yes --> E1[Escalate:<br/>sensitive_data]
+    B -- No --> C{Account lookup?<br/>e.g. order number}
+    C -- Yes --> E2[Escalate:<br/>account_lookup]
+    C -- No --> D[Retrieve top-4 chunks<br/>TF-IDF cosine similarity<br/>over 40 chunks]
+    D --> F{Confidence check<br/>top score vs threshold}
+    F -- Low --> E3[Escalate:<br/>low_confidence<br/><i>LLM never called</i>]
+    F -- OK --> G[Build prompt:<br/>system rules + retrieved chunks<br/>+ last 3 turns]
+    G --> H[Groq LLM<br/>openai/gpt-oss-120b<br/>generates answer]
+    H --> I{Grounding check<br/>citations match<br/>retrieved chunk ids?}
+    I -- No --> E4[Escalate:<br/>ungrounded]
+    I -- Yes --> J[Return cited answer]
 
-All escalation paths route to a human agent queue, tagged with the specific reason.
+    E1 --> Q[(Human agent queue<br/>tagged with reason)]
+    E2 --> Q
+    E3 --> Q
+    E4 --> Q
+
+    style E1 fill:#f8d7da,stroke:#c0392b
+    style E2 fill:#f8d7da,stroke:#c0392b
+    style E3 fill:#f8d7da,stroke:#c0392b
+    style E4 fill:#f8d7da,stroke:#c0392b
+    style Q fill:#fff3cd,stroke:#b7950b
+    style J fill:#d4edda,stroke:#27ae60
+```
 
 **Ingestion (`src/ingest.py`)** — parses the three markdown source files into
 a flat list of chunks: one FAQ entry, one policy article, or one ticket
