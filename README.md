@@ -29,11 +29,11 @@ Uses Groq's free tier (`openai/gpt-oss-120b`) for generation.
 
 ## 1. Architecture
 
-flowchart
-```
+```mermaid
+flowchart TD
     U[User question] --> G1{Sensitive data?\ncard number, CVV, password}
     G1 -->|yes| E1[Escalate: sensitive_data\nnever touch retrieval/LLM]
-    G1 -->|no| G2{Needs account lookup? e.g. order number or subscription status}
+    G1 -->|no| G2{Needs account lookup?\n"my order #...", "my subscription"}
     G2 -->|yes| E2[Escalate: account_lookup]
     G2 -->|no| R[Retrieve top-4 chunks\nTF-IDF cosine similarity\nover 40 chunks]
 
@@ -49,8 +49,7 @@ flowchart
     E1 & E2 & E3 & E4 --> H[Human agent queue,\ntagged with escalation reason]
 ```
 
-## Ingestion (`src/ingest.py`)
-Parses the three markdown source files into
+**Ingestion (`src/ingest.py`)** — parses the three markdown source files into
 a flat list of chunks: one FAQ entry, one policy article, or one ticket
 transcript per chunk. No sub-splitting — each of these is already small
 (150-400 words) and single-topic, so splitting further risks separating an
@@ -256,5 +255,6 @@ learnforge-support-assistant/
 │   └── chat.py           # interactive multi-turn CLI
 ├── eval.py               # test set + escalation accuracy
 ├── requirements.txt
+├── .gitignore
 └── README.md
 ```
